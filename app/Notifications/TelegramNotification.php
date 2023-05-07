@@ -2,23 +2,27 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\Telegram\TelegramChannel;
+use NotificationChannels\Telegram\TelegramMessage;
 
 class TelegramNotification extends Notification
 {
     use Queueable;
+    private $user;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(User $user)
     {
-        //
+        $this->user=$user;
     }
 
     /**
@@ -29,9 +33,14 @@ class TelegramNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return [TelegramChannel::class];
     }
 
+    public function toTelegram($notifiable){
+       return TelegramMessage::create()
+              ->content("Olá ".$this->user->name."\n Temos conteúdo novo no canal")
+              ->button('Entre aqui para verificar','www.aviatocreative.com');
+    }
     /**
      * Get the mail representation of the notification.
      *
